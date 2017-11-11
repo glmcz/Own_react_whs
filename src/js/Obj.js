@@ -12,17 +12,33 @@ import * as WHS from 'whs';
 // import * as THREE from 'three'
 import React, { Component } from 'react';
 // import Comp from './Component';
-
+import * as THREE from 'three';
 class Obj extends Component{
     constructor(props) {
         super(props);
         this.app = new WHS.App([
-            new WHS.ElementModule(document.createElement('div'))
+            new WHS.ElementModule(document.createElement('div')),
             // new WHS.SceneModule(),
             // new WHS.DefineModule('camera', new WHS.PerspectiveCamera({
             //     position: new THREE.Vector3(0, 10, 50)
             // ...
+
+            new WHS.SceneModule(),
+            new WHS.DefineModule('camera', new WHS.PerspectiveCamera({
+                position: new THREE.Vector3(0, 10, 50)
+            })),
+            new WHS.RenderingModule({
+                bgColor: 0xF2F2F2,
+                renderer: {
+                    antialias: true,
+                    shadowmap: {
+                        type: THREE.PCFSoftShadowMap
+                    }
+                }
+            }),
         ]);
+
+
         this.doSomething = this.doSomething.bind(this);
 
         props.refApp(this.app);
@@ -30,6 +46,38 @@ class Obj extends Component{
 
     componentDidMount() {
         this.mount.appendChild(this.app.get('element'));
+        const sphere = new WHS.Sphere({ // Create sphere component.
+            geometry: {
+                radius: 3,
+                widthSegments: 32,
+                heightSegments: 32
+            },
+
+            material: new THREE.MeshBasicMaterial({
+                color: 0xF2F2F2
+            }),
+
+            position: [0, 10, 0]
+        });
+        const plane = new WHS.Plane({
+            geometry: {
+                width: 100,
+                height: 100
+            },
+
+            material: new THREE.MeshBasicMaterial({
+                color: 0x447F8B
+            }),
+
+            rotation: {
+                x: - Math.PI / 2
+            }
+        })
+        plane.addTo(this.app);
+
+        sphere.addTo(this.app); // Add sphere to world.
+        this.app.start();
+
 
     }
     doSomething(){
@@ -98,6 +146,7 @@ class Child extends React.Component {
     constructor(props){
         super(props);
         this.handleChangeMessageChild = this.handleChangeMessageChild.bind(this);
+
     }
     handleChangeMessageChild(value){
         this.setState({value });
@@ -123,7 +172,10 @@ export default class Viewport extends Component{
         {
             message: "Neco tu je init"
         }
+
+
     }
+
 
     handleChangeMessage(){
         console.log("aaa");
